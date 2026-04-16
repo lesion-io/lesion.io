@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lesion.io - The exploit search engine that cuts research time to identify exploits </title>
     <link href="./src/output.css" rel="stylesheet" />
-    /*Terminal section fonts link*/
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap"
@@ -53,23 +52,25 @@
         border: 1px solid rgba(255, 102, 0, 0.2);
         border-radius: 8px;
         padding: 0.5rem 0;
-        margin-top: 0.5rem;
+        margin-top: 0;
         box-shadow: 0 10px 40px rgba(255, 102, 0, 0.15);
         backdrop-filter: blur(12px);
         z-index: 100;
+        flex-direction: column;
+        gap: 0;
       }
 
       .dropdown:hover .dropdown-content {
-        display: block;
+        display: flex;
       }
 
       .dropdown-content a {
         display: flex;
         align-items: center;
-        padding: 0.75rem 1rem;
+        padding: 0.625rem 1rem;
         color: #94a3b8;
         text-decoration: none;
-        transition: all 0.2s;
+        transition: background 0.2s, color 0.2s, padding-left 0.2s;
         font-size: 0.875rem;
       }
 
@@ -110,46 +111,219 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
       }
+
+      button:not(:disabled),
+      input[type="submit"]:not(:disabled),
+      input[type="button"]:not(:disabled),
+      input[type="reset"]:not(:disabled) {
+        cursor: pointer;
+        transition:
+          transform 0.18s ease,
+          box-shadow 0.2s ease,
+          filter 0.18s ease;
+      }
+
+      button:disabled,
+      input[type="submit"]:disabled,
+      input[type="button"]:disabled,
+      input[type="reset"]:disabled {
+        cursor: not-allowed;
+      }
+
+      button:not(:disabled):hover,
+      input[type="submit"]:not(:disabled):hover,
+      input[type="button"]:not(:disabled):hover,
+      input[type="reset"]:not(:disabled):hover {
+        transform: translateY(-1px);
+        filter: brightness(1.06);
+      }
+
+      button:not(:disabled):active,
+      input[type="submit"]:not(:disabled):active,
+      input[type="button"]:not(:disabled):active,
+      input[type="reset"]:not(:disabled):active {
+        transform: translateY(0);
+        filter: brightness(0.96);
+        transition-duration: 0.06s;
+      }
     </style>
   </head>
   <body class="text-white">
+    <!-- Background canvas -->
     <canvas id="canvas"></canvas>
 
     <!-- Navigation -->
-<nav
-  class="fixed top-0 w-full z-50 bg-[#0a0e1a]/95 backdrop-blur-md border-b-2 border-orange-500/20 navbar-glow"
->
-  <div class="max-w-7xl mx-auto px-6 py-4">
-    <div class="flex items-center justify-between">
-      <!-- Logo -->
-      <div class="flex items-center gap-3 flex-shrink-0">
-        <img
-          src="./src/images/Asset-5.png"
-          alt="Asset-2"
-          width="140px"
-          height="120px"
-        />
-      </div>
+    <nav
+      class="fixed top-0 w-full z-50 bg-[#0a0e1a]/95 backdrop-blur-md border-b-2 border-orange-500/20 navbar-glow"
+    >
+      <div class="max-w-7xl mx-auto px-6 py-4">
+        <div class="flex items-center justify-between gap-4">
+          <div class="flex items-center gap-3 flex-shrink-0 min-w-0">
+            <img
+              src="./src/images/Asset-5.png"
+              alt="Lesion.io"
+              width="140"
+              height="120"
+            />
+          </div>
 
-      <!-- Navigation Links -->
-      <div class="hidden md:flex items-center gap-1 flex-1 justify-center">
-        <!-- Features Dropdown -->
-        <div class="dropdown relative">
-          <a
-          href="#features"
-          class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
-        >
-          Features
-        </a>
+          <div class="hidden md:flex items-center gap-1 flex-1 justify-center min-w-0">
+            <a
+              href="#features"
+              class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+            >
+              Features
+            </a>
+
+            <div class="dropdown relative">
+              <a
+                href="#search"
+                class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium flex items-center gap-1"
+              >
+                Tools
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </a>
+              <div class="dropdown-content">
+                <a href="https://app.lesion.io/search">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    style="margin-right: 0.5rem"
+                    aria-hidden="true"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                  Lesion Search
+                </a>
+              </div>
+            </div>
+
+            <a
+              href="#leaderboard"
+              class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+            >
+              Leaderboard
+            </a>
+
+            <a
+              href="#pricing"
+              class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+            >
+              Pricing
+            </a>
+
+            <div class="dropdown relative">
+              <a
+                href="#"
+                class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium flex items-center gap-1"
+              >
+                Resources
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </a>
+              <div class="dropdown-content">
+                <a href="https://blog.lesion.io">Community</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="hidden md:flex items-center gap-3 flex-shrink-0">
+            <button
+              type="button"
+              onclick="window.open('https://app.lesion.io/login')"
+              class="px-5 py-2 rounded-lg text-slate-300 hover:text-orange-500 hover:bg-orange-500/10 transition-all font-medium"
+            >
+              Sign In
+            </button>
+            <button
+              type="button"
+              onclick="window.open('https://app.lesion.io/signup')"
+              class="px-6 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium border border-orange-500/50 transition-all shadow-lg shadow-orange-600/20"
+            >
+              Get Started
+            </button>
+          </div>
+
+          <button
+            type="button"
+            id="mobile-menu-btn"
+            class="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-orange-500/10 hover:text-orange-500 transition-all flex-shrink-0"
+            aria-expanded="false"
+            aria-controls="mobile-menu"
+            aria-label="Open menu"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <line x1="4" x2="20" y1="6" y2="6" />
+              <line x1="4" x2="20" y1="12" y2="12" />
+              <line x1="4" x2="20" y1="18" y2="18" />
+            </svg>
+          </button>
         </div>
 
-        <!-- Tools Dropdown -->
-        <div class="dropdown relative">
+        <div
+          id="mobile-menu"
+          class="hidden md:hidden border-t border-orange-500/20 mt-4 pt-4 flex-col gap-1"
+        >
+          <a
+            href="#features"
+            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+          >
+            Features
+          </a>
           <a
             href="#search"
-            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium flex items-center gap-1"
+            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
           >
             Tools
+          </a>
+          <a
+            href="https://app.lesion.io/search"
+            class="px-4 py-2 pl-8 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-400 text-sm font-medium flex items-center gap-2"
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="16"
@@ -160,97 +334,94 @@
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-hidden="true"
             >
-              <polyline points="6 9 12 15 18 9"></polyline>
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
             </svg>
+            Lesion Search
           </a>
-          <div class="dropdown-content">
-            <a href="https://app.lesion.io/search">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                style="margin-right: 0.5rem"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
-              Lesion Search
-            </a>
-          </div>
-        </div>
-
-        <!-- Solutions Dropdown -->
-        <div class="dropdown relative">
           <a
             href="#leaderboard"
-            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium flex items-center gap-1"
+            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
           >
             Leaderboard
           </a>
-        </div>
-
-        <!-- Pricing -->
-        <a
-          href="#pricing"
-          class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
-        >
-          Pricing
-        </a>
-
-        <!-- Resources Dropdown -->
-        <div class="dropdown relative">
+          <a
+            href="#pricing"
+            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+          >
+            Pricing
+          </a>
           <a
             href="#"
-            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium flex items-center gap-1"
+            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
           >
             Resources
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
           </a>
-          <div class="dropdown-content">
-            <a href="https://blog.lesion.io">Blog</a>
-          </div>
+          <a
+            href="https://blog.lesion.io"
+            class="px-4 py-2 pl-8 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-400 text-sm font-medium"
+          >
+            Blog
+          </a>
+          <div class="nav-divider"></div>
+          <button
+            type="button"
+            onclick="window.open('https://app.lesion.io/login')"
+            class="px-4 py-2 rounded-lg text-left text-slate-300 hover:text-orange-500 hover:bg-orange-500/10 transition-all font-medium"
+          >
+            Sign In
+          </button>
+          <button
+            type="button"
+            onclick="window.open('https://app.lesion.io/signup')"
+            class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium border border-orange-500/50 transition-all shadow-lg shadow-orange-600/20 text-center"
+          >
+            Get Started
+          </button>
         </div>
       </div>
+    </nav>
 
-      <!-- CTA Buttons -->
-      <div class="flex items-center gap-3 flex-shrink-0">
-        <button
-          onclick="window.open('https://app.lesion.io/login')"
-          class="px-5 py-2 rounded-lg text-slate-300 hover:text-orange-500 hover:bg-orange-500/10 transition-all font-medium"
-        >
-          Sign In
-        </button>
-        <button
-          onclick="window.open('https://app.lesion.io/signup')"
-          class="px-6 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium border border-orange-500/50 transition-all shadow-lg shadow-orange-600/20"
-        >
-          Get Started
-        </button>
-      </div>
-    </div>
-  </div>
-</nav>
+    <!-- Mobile menu script -->
+    <script>
+      (function () {
+        var btn = document.getElementById("mobile-menu-btn");
+        var panel = document.getElementById("mobile-menu");
+        if (!btn || !panel) return;
 
-    <!-- Hero Section -->
+        function isMenuClosed() {
+          return panel.classList.contains("hidden");
+        }
+
+        function setOpen(open) {
+          if (open) {
+            panel.classList.remove("hidden");
+            panel.classList.add("flex");
+          } else {
+            panel.classList.add("hidden");
+            panel.classList.remove("flex");
+          }
+          btn.setAttribute("aria-expanded", open ? "true" : "false");
+          btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+        }
+
+        btn.addEventListener("click", function () {
+          setOpen(isMenuClosed());
+        });
+
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && !isMenuClosed()) setOpen(false);
+        });
+
+        panel.addEventListener("click", function (e) {
+          if (e.target.closest("a, button")) setOpen(false);
+        });
+      })();
+    </script>
+
+    <!-- Hero -->
     <section class="relative pt-32 pb-20 px-6 overflow-hidden">
       <div
         class="absolute inset-0 bg-[linear-gradient(to_right,#1a1f2e_1px,transparent_1px),linear-gradient(to_bottom,#1a1f2e_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20"
@@ -322,7 +493,6 @@
             </button>
           </div>
 
-          <!-- Terminal Display -->
           <div class="relative max-w-3xl mx-auto">
             <div
               class="bg-slate-950/50 border-2 border-orange-500/20 rounded-lg overflow-hidden backdrop-blur-sm"
@@ -361,7 +531,7 @@
       </div>
     </section>
 
-    <!-- Lesion Search Feature Section -->
+    <!-- Lesion Search -->
     <section
       id="search"
       class="py-24 px-6 relative z-10 border-y-2 border-orange-500/10 bg-slate-900/20"
@@ -678,7 +848,7 @@
       </div>
     </section>
 
-    <!-- Stats Section -->
+    <!-- Stats -->
     <section class="py-16 px-6 bg-slate-900/20 relative z-10">
       <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
         <div class="text-center">
@@ -708,7 +878,7 @@
       </div>
     </section>
 
-    <!-- Features Section -->
+    <!-- Features -->
     <section id="features" class="py-24 px-6 relative z-10">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
@@ -789,7 +959,7 @@
       </div>
     </section>
 
-    <!-- Pricing Section -->
+    <!-- Pricing -->
     <section id="pricing" class="py-24 px-6 relative z-10 bg-slate-900/20">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
@@ -1205,7 +1375,7 @@
       </div>
     </section>
 
-    <!-- CTA Section -->
+    <!-- CTA -->
     <section
       class="py-24 px-6 bg-gradient-to-r from-orange-500/10 via-orange-600/5 to-orange-500/10 border-y-2 border-orange-500/20 relative z-10"
     >
@@ -1319,8 +1489,8 @@
       </div>
     </footer>
 
+    <!-- Canvas animation -->
     <script>
-      // Falling Dots Animation
       const canvas = document.getElementById("canvas");
       const ctx = canvas.getContext("2d");
 
