@@ -17,7 +17,7 @@
       }
 
       body {
-        background: #0a0e1a;
+        background-color: #000;
         overflow-x: hidden;
       }
       .terminal-font {
@@ -32,14 +32,68 @@
         -moz-osx-font-smoothing: grayscale;
       }
 
-      #canvas {
+      .term-line,
+      .term-line * {
+        font-family: inherit;
+      }
+
+      .term-line {
+        min-height: 1.45em;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      .term-cmd {
+        color: #4ade80;
+      }
+
+      .term-resp {
+        color: #9aa1ad;
+      }
+
+      .term-note {
+        color: #ffffff;
+      }
+
+      .term-caret {
+        display: inline-block;
+        width: 0.5em;
+        height: 1em;
+        margin-left: 2px;
+        background: #4ade80;
+        vertical-align: -2px;
+        animation: term-blink 1.6s steps(1) infinite;
+      }
+
+      @keyframes term-blink {
+        50% {
+          opacity: 0;
+        }
+      }
+
+      body::before,
+      body::after {
+        content: "";
         position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         pointer-events: none;
-        z-index: 0;
+      }
+
+      body::before {
+        z-index: -2;
+        background-color: #000;
+        background-image:
+          radial-gradient(900px 520px at 10% -10%, rgba(255, 255, 255, 0.1), transparent 70%),
+          radial-gradient(760px 460px at 92% 108%, rgba(255, 255, 255, 0.07), transparent 72%),
+          linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+        background-size: auto, auto, 26px 26px, 26px 26px;
+      }
+
+      body::after {
+        z-index: -1;
+        opacity: 0.035;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
       }
 
       .dropdown-content {
@@ -48,12 +102,12 @@
         top: 100%;
         left: 0;
         min-width: 220px;
-        background: rgba(10, 14, 26, 0.98);
-        border: 1px solid rgba(255, 102, 0, 0.2);
+        background: rgba(0, 0, 0, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.12);
         border-radius: 8px;
         padding: 0.5rem 0;
         margin-top: 0;
-        box-shadow: 0 10px 40px rgba(255, 102, 0, 0.15);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(12px);
         z-index: 100;
         flex-direction: column;
@@ -68,45 +122,30 @@
         display: flex;
         align-items: center;
         padding: 0.625rem 1rem;
-        color: #94a3b8;
+        color: #9aa1ad;
         text-decoration: none;
         transition: background 0.2s, color 0.2s, padding-left 0.2s;
         font-size: 0.875rem;
       }
 
       .dropdown-content a:hover {
-        background: rgba(255, 102, 0, 0.1);
-        color: #ff6600;
+        background: rgba(255, 255, 255, 0.06);
+        color: #fff;
         padding-left: 1.25rem;
       }
 
       .nav-divider {
         height: 1px;
-        background: rgba(255, 102, 0, 0.1);
+        background: rgba(255, 255, 255, 0.12);
         margin: 0.5rem 0;
       }
 
       .navbar-glow {
-        box-shadow: 0 4px 20px rgba(255, 102, 0, 0.1);
-      }
-
-      @keyframes pulse-orange {
-        0%,
-        100% {
-          box-shadow: 0 0 20px rgba(255, 102, 0, 0.3);
-        }
-        50% {
-          box-shadow: 0 0 30px rgba(255, 102, 0, 0.5);
-        }
-      }
-
-      .logo-glow {
-        animation: pulse-orange 3s ease-in-out infinite;
-        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       }
 
       .gradient-text {
-        background: linear-gradient(to right, #ffffff, #ffa366, #ff6600);
+        background: linear-gradient(to right, #ffffff, #dc5f00);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -149,12 +188,9 @@
     </style>
   </head>
   <body class="text-white">
-    <!-- Background canvas -->
-    <canvas id="canvas"></canvas>
-
     <!-- Navigation -->
     <nav
-      class="fixed top-0 w-full z-50 bg-[#0a0e1a]/95 backdrop-blur-md border-b-2 border-orange-500/20 navbar-glow"
+      class="fixed top-0 w-full z-50 bg-black/70 backdrop-blur-md border-b border-[rgba(255,255,255,0.12)] navbar-glow"
     >
       <div class="max-w-7xl mx-auto px-6 py-4">
         <div class="flex items-center justify-between gap-4">
@@ -170,7 +206,7 @@
           <div class="hidden md:flex items-center gap-1 flex-1 justify-center min-w-0">
             <a
               href="#features"
-              class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+              class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium"
             >
               Features
             </a>
@@ -178,7 +214,7 @@
             <div class="dropdown relative">
               <a
                 href="#search"
-                class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium flex items-center gap-1"
+                class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium flex items-center gap-1"
               >
                 Tools
                 <svg
@@ -221,14 +257,14 @@
 
             <a
               href="#leaderboard"
-              class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+              class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium"
             >
               Leaderboard
             </a>
 
             <a
               href="#pricing"
-              class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+              class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium"
             >
               Pricing
             </a>
@@ -236,7 +272,7 @@
             <div class="dropdown relative">
               <a
                 href="#"
-                class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium flex items-center gap-1"
+                class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium flex items-center gap-1"
               >
                 Resources
                 <svg
@@ -264,14 +300,14 @@
             <button
               type="button"
               onclick="window.open('https://app.lesion.io/login')"
-              class="px-5 py-2 rounded-lg text-slate-300 hover:text-orange-500 hover:bg-orange-500/10 transition-all font-medium"
+              class="px-5 py-2 rounded-lg text-slate-300 hover:text-[#dc5f00] hover:bg-[rgba(255,255,255,0.06)] transition-all font-medium"
             >
               Sign In
             </button>
             <button
               type="button"
               onclick="window.open('https://app.lesion.io/signup')"
-              class="px-6 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium border border-orange-500/50 transition-all shadow-lg shadow-orange-600/20"
+              class="px-6 py-2 rounded-lg bg-[#dc5f00] hover:bg-[#c25400] text-white font-medium transition-all"
             >
               Get Started
             </button>
@@ -280,7 +316,7 @@
           <button
             type="button"
             id="mobile-menu-btn"
-            class="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-orange-500/10 hover:text-orange-500 transition-all flex-shrink-0"
+            class="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-slate-300 hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all flex-shrink-0"
             aria-expanded="false"
             aria-controls="mobile-menu"
             aria-label="Open menu"
@@ -306,23 +342,23 @@
 
         <div
           id="mobile-menu"
-          class="hidden md:hidden border-t border-orange-500/20 mt-4 pt-4 flex-col gap-1"
+          class="hidden md:hidden border-t border-[rgba(255,255,255,0.12)] mt-4 pt-4 flex-col gap-1"
         >
           <a
             href="#features"
-            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+            class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium"
           >
             Features
           </a>
           <a
             href="#search"
-            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+            class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium"
           >
             Tools
           </a>
           <a
             href="https://app.lesion.io/search"
-            class="px-4 py-2 pl-8 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-400 text-sm font-medium flex items-center gap-2"
+            class="px-4 py-2 pl-8 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-400 text-sm font-medium flex items-center gap-2"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -343,25 +379,25 @@
           </a>
           <a
             href="#leaderboard"
-            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+            class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium"
           >
             Leaderboard
           </a>
           <a
             href="#pricing"
-            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+            class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium"
           >
             Pricing
           </a>
           <a
             href="#"
-            class="px-4 py-2 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-300 font-medium"
+            class="px-4 py-2 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-300 font-medium"
           >
             Resources
           </a>
           <a
             href="https://blog.lesion.io"
-            class="px-4 py-2 pl-8 rounded-lg hover:bg-orange-500/10 hover:text-orange-500 transition-all text-slate-400 text-sm font-medium"
+            class="px-4 py-2 pl-8 rounded-lg hover:bg-[rgba(255,255,255,0.06)] hover:text-[#dc5f00] transition-all text-slate-400 text-sm font-medium"
           >
             Blog
           </a>
@@ -369,14 +405,14 @@
           <button
             type="button"
             onclick="window.open('https://app.lesion.io/login')"
-            class="px-4 py-2 rounded-lg text-left text-slate-300 hover:text-orange-500 hover:bg-orange-500/10 transition-all font-medium"
+            class="px-4 py-2 rounded-lg text-left text-slate-300 hover:text-[#dc5f00] hover:bg-[rgba(255,255,255,0.06)] transition-all font-medium"
           >
             Sign In
           </button>
           <button
             type="button"
             onclick="window.open('https://app.lesion.io/signup')"
-            class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium border border-orange-500/50 transition-all shadow-lg shadow-orange-600/20 text-center"
+            class="px-4 py-2 rounded-lg bg-[#dc5f00] hover:bg-[#c25400] text-white font-medium transition-all text-center"
           >
             Get Started
           </button>
@@ -423,21 +459,10 @@
 
     <!-- Hero -->
     <section class="relative pt-32 pb-20 px-6 overflow-hidden">
-      <div
-        class="absolute inset-0 bg-[linear-gradient(to_right,#1a1f2e_1px,transparent_1px),linear-gradient(to_bottom,#1a1f2e_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-20"
-      ></div>
-
-      <div
-        class="absolute top-0 right-1/4 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl"
-      ></div>
-      <div
-        class="absolute bottom-0 left-1/4 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl"
-      ></div>
-
       <div class="max-w-7xl mx-auto relative z-10">
         <div class="text-center max-w-4xl mx-auto">
           <div
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-6"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-6"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -469,7 +494,7 @@
           <div class="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <button
               onclick="window.open('https://app.lesion.io/signup')"
-              class="px-8 py-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium border border-orange-500/50 transition-all shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2"
+              class="px-8 py-4 rounded-lg bg-[#dc5f00] hover:bg-[#c25400] text-white font-medium transition-all flex items-center justify-center gap-2"
             >
               Join for Free
               <svg
@@ -487,7 +512,7 @@
               </svg>
             </button>
             <button
-              class="px-8 py-4 rounded-lg border-2 border-orange-500/30 text-orange-500 hover:bg-orange-500/10 font-medium transition-all"
+              class="px-8 py-4 rounded-lg border-2 border-[rgba(255,255,255,0.12)] text-[#dc5f00] hover:bg-[rgba(255,255,255,0.06)] font-medium transition-all"
             >
               Watch Demo
             </button>
@@ -495,52 +520,144 @@
 
           <div class="relative max-w-3xl mx-auto">
             <div
-              class="bg-slate-950/50 border-2 border-orange-500/20 rounded-lg overflow-hidden backdrop-blur-sm"
+              class="bg-black border-2 border-[rgba(255,255,255,0.12)] rounded-lg overflow-hidden shadow-2xl shadow-black/60"
             >
               <div
-                class="flex items-center gap-2 px-4 py-3 bg-slate-900/50 border-b border-orange-500/10"
+                class="flex items-center gap-2 px-4 py-3 bg-[rgba(255,255,255,0.04)] border-b border-[rgba(255,255,255,0.12)]"
               >
                 <div class="flex gap-1.5">
                   <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
                   <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
                   <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
                 </div>
-                <span class="text-xs text-slate-500 ml-2">terminal</span>
+                <span class="text-xs text-[#9aa1ad] ml-2">bash</span>
               </div>
-              <div class="p-6 font-mono text-sm text-left terminal-font">
-                <div class="text-green-400">$ user@target:~ sudo --version</div>
-                <div class="text-slate-400">Sudo version 1.9.17</div>
-                <div class="text-white-400">
-                  [*] Searched app.lesion.io/search
-                </div>
-                <div class="text-white-400">
-                  [*] Found 23 potential CVEs for sudo 1.9.17
-                </div>
-                <div class="text-white-400">[*] 17 PoCs identified</div>
-                <div class="flex items-center">
-                  <span class="text-white-400"
-                    >[✓] Payload verified and enhanced</span></div>
-                <div class="text-green-400">$ user@target:~ echo "PAYLOAD" > payload.sh && chmod +x payload.sh</div>
-                <div class="text-green-400">$ user@target:~ ./payload.sh</div>
-                <div class="text-green-400">$ root@target:~ whoami</div>
-                <div class="text-slate-400">root</div>
-            
+              <div
+                id="hero-terminal"
+                class="p-6 text-sm text-left terminal-font min-h-[260px]"
+              ></div>
             </div>
           </div>
         </div>
       </div>
     </section>
 
+    <!-- Terminal typing animation -->
+    <script>
+      (function () {
+        var el = document.getElementById("hero-terminal");
+        if (!el) return;
+
+        var lines = [
+          { type: "cmd", prompt: "user@target:~$ ", text: "sudo --version" },
+          { type: "resp", text: "Sudo version 1.9.17" },
+          { type: "note", text: "[*] Searched app.lesion.io/search" },
+          { type: "note", text: "[*] Found 23 potential CVEs for sudo 1.9.17" },
+          { type: "note", text: "[*] 17 PoCs identified" },
+          { type: "note", text: "[✓] Payload verified and enhanced" },
+          { type: "cmd", prompt: "user@target:~$ ", text: 'echo "PAYLOAD" > payload.sh && chmod +x payload.sh' },
+          { type: "cmd", prompt: "user@target:~$ ", text: "./payload.sh" },
+          { type: "cmd", prompt: "root@target:~$ ", text: "whoami" },
+          { type: "resp", text: "root" },
+        ];
+
+        function addLine(type, text, prompt) {
+          var div = document.createElement("div");
+          div.className = "term-line term-" + type;
+          if (prompt) {
+            var promptSpan = document.createElement("span");
+            promptSpan.className = "term-prompt";
+            promptSpan.textContent = prompt;
+            div.appendChild(promptSpan);
+            div.appendChild(document.createTextNode(text));
+          } else {
+            div.textContent = text;
+          }
+          el.appendChild(div);
+          return div;
+        }
+
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+          lines.forEach(function (line) {
+            addLine(line.type, line.text, line.prompt);
+          });
+          return;
+        }
+
+        function typeLine(prompt, text, done) {
+          var div = document.createElement("div");
+          div.className = "term-line term-cmd";
+          var promptSpan = document.createElement("span");
+          promptSpan.className = "term-prompt";
+          promptSpan.textContent = prompt;
+          var textSpan = document.createElement("span");
+          div.appendChild(promptSpan);
+          div.appendChild(textSpan);
+          el.appendChild(div);
+
+          var i = 0;
+          (function tick() {
+            i++;
+            if (i <= text.length) {
+              textSpan.textContent = text.slice(0, i);
+              var oldCaret = div.querySelector(".term-caret");
+              if (oldCaret) oldCaret.remove();
+              var caret = document.createElement("span");
+              caret.className = "term-caret";
+              div.appendChild(caret);
+              setTimeout(tick, 45 + Math.random() * 40);
+            } else {
+              textSpan.textContent = text;
+              var finalCaret = div.querySelector(".term-caret");
+              if (finalCaret) finalCaret.remove();
+              done();
+            }
+          })();
+        }
+
+        function run() {
+          el.innerHTML = "";
+          var i = 0;
+
+          function next() {
+            if (i >= lines.length) {
+              var idle = addLine("cmd", "root@target:~$ ");
+              var caret = document.createElement("span");
+              caret.className = "term-caret";
+              idle.appendChild(caret);
+              return;
+            }
+
+            var line = lines[i];
+            if (line.type === "cmd") {
+              typeLine(line.prompt, line.text, function () {
+                i++;
+                setTimeout(next, 500);
+              });
+            } else {
+              addLine(line.type, line.text);
+              i++;
+              setTimeout(next, 850);
+            }
+          }
+
+          next();
+        }
+
+        run();
+      })();
+    </script>
+
     <!-- Lesion Search -->
     <section
       id="search"
-      class="py-24 px-6 relative z-10 border-y-2 border-orange-500/10 bg-slate-900/20"
+      class="py-24 px-6 relative z-10 border-y-2 border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.02)]"
     >
       <div class="max-w-7xl mx-auto">
         <div class="grid md:grid-cols-2 gap-12 items-center">
           <div>
             <div
-              class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-6"
+              class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-6"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -563,7 +680,7 @@
               Lesion Search
             </h2>
 
-            <p class="text-xl text-orange-400 mb-6 font-medium">
+            <p class="text-xl text-[#dc5f00] mb-6 font-medium">
               The exploit search engine that cuts research time to identify
               exploits
             </p>
@@ -582,7 +699,7 @@
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -601,7 +718,7 @@
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -620,7 +737,7 @@
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -639,7 +756,7 @@
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -658,7 +775,7 @@
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -675,7 +792,7 @@
             <div class="flex flex-col sm:flex-row gap-4">
               <button
                 onclick="window.open('https://app.lesion.io/signup')"
-                class="px-6 py-3 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium border border-orange-500/50 transition-all shadow-lg shadow-orange-600/20 flex items-center justify-center gap-2"
+                class="px-6 py-3 rounded-lg bg-[#dc5f00] hover:bg-[#c25400] text-white font-medium transition-all flex items-center justify-center gap-2"
               >
                 Try Lesion Search
                 <svg
@@ -694,7 +811,7 @@
                 </svg>
               </button>
               <button
-                class="px-6 py-3 rounded-lg border-2 border-orange-500/30 text-orange-500 hover:bg-orange-500/10 font-medium transition-all"
+                class="px-6 py-3 rounded-lg border-2 border-[rgba(255,255,255,0.12)] text-[#dc5f00] hover:bg-[rgba(255,255,255,0.06)] font-medium transition-all"
                 onclick="window.location.href='https://blog.lesion.io/conversor-walkthrough-htb-easy-box/'"
               >
                 Use Case
@@ -704,10 +821,10 @@
 
           <div>
             <div
-              class="bg-slate-950/50 border-2 border-orange-500/20 p-6 rounded-lg backdrop-blur-sm"
+              class="bg-[rgba(255,255,255,0.03)] border-2 border-[rgba(255,255,255,0.12)] p-6 rounded-lg backdrop-blur-sm"
             >
               <div
-                class="flex items-center gap-3 mb-6 pb-4 border-b border-orange-500/10"
+                class="flex items-center gap-3 mb-6 pb-4 border-b border-[rgba(255,255,255,0.12)]"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -715,7 +832,7 @@
                   height="20"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -730,7 +847,7 @@
                   value="Apache Struts"
                 />
                 <button
-                  class="px-4 py-2 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-sm font-medium"
+                  class="px-4 py-2 rounded-lg bg-[#dc5f00] hover:bg-[#c25400] text-white text-sm font-medium"
                   onclick="window.open('https://app.lesion.io/search')"
                 >
                   Search
@@ -739,11 +856,11 @@
 
               <div class="space-y-3">
                 <div
-                  class="p-4 bg-slate-900/50 border-2 border-orange-500/10 rounded hover:border-orange-500/30 transition-all cursor-pointer group"
+                  class="p-4 bg-[rgba(255,255,255,0.035)] border-2 border-[rgba(255,255,255,0.12)] rounded hover:border-[rgba(255,255,255,0.24)] transition-all cursor-pointer group"
                 >
                   <div class="flex items-start justify-between mb-2">
                     <span
-                      class="font-mono text-orange-500 group-hover:text-orange-400"
+                      class="font-mono text-[#dc5f00] group-hover:text-[#dc5f00]"
                       >CVE-2024-53677</span
                     >
                     <span
@@ -760,11 +877,11 @@
                 </div>
 
                 <div
-                  class="p-4 bg-slate-900/50 border-2 border-orange-500/10 rounded hover:border-orange-500/30 transition-all cursor-pointer group"
+                  class="p-4 bg-[rgba(255,255,255,0.035)] border-2 border-[rgba(255,255,255,0.12)] rounded hover:border-[rgba(255,255,255,0.24)] transition-all cursor-pointer group"
                 >
                   <div class="flex items-start justify-between mb-2">
                     <span
-                      class="font-mono text-orange-500 group-hover:text-orange-400"
+                      class="font-mono text-[#dc5f00] group-hover:text-[#dc5f00]"
                       >CVE-2021-31805</span
                     >
                     <span
@@ -779,15 +896,15 @@
                 </div>
 
                 <div
-                  class="p-4 bg-slate-900/50 border-2 border-orange-500/10 rounded hover:border-orange-500/30 transition-all cursor-pointer group"
+                  class="p-4 bg-[rgba(255,255,255,0.035)] border-2 border-[rgba(255,255,255,0.12)] rounded hover:border-[rgba(255,255,255,0.24)] transition-all cursor-pointer group"
                 >
                   <div class="flex items-start justify-between mb-2">
                     <span
-                      class="font-mono text-orange-500 group-hover:text-orange-400"
+                      class="font-mono text-[#dc5f00] group-hover:text-[#dc5f00]"
                       >CVE-2024-9012</span
                     >
                     <span
-                      class="text-xs px-2 py-1 rounded bg-orange-500/20 text-orange-400 border border-orange-500/30"
+                      class="text-xs px-2 py-1 rounded bg-[rgba(220,95,0,0.2)] text-[#dc5f00] border border-[rgba(220,95,0,0.3)]"
                       >High</span
                     >
                   </div>
@@ -798,11 +915,11 @@
                 </div>
 
                 <div
-                  class="p-4 bg-slate-900/50 border-2 border-orange-500/10 rounded hover:border-orange-500/30 transition-all cursor-pointer group"
+                  class="p-4 bg-[rgba(255,255,255,0.035)] border-2 border-[rgba(255,255,255,0.12)] rounded hover:border-[rgba(255,255,255,0.24)] transition-all cursor-pointer group"
                 >
                   <div class="flex items-start justify-between mb-2">
                     <span
-                      class="font-mono text-orange-500 group-hover:text-orange-400"
+                      class="font-mono text-[#dc5f00] group-hover:text-[#dc5f00]"
                       >CVE-2023-6308</span
                     >
                     <span
@@ -818,12 +935,12 @@
                 </div>
               </div>
 
-              <div class="mt-6 pt-4 border-t border-orange-500/10 text-center">
+              <div class="mt-6 pt-4 border-t border-[rgba(255,255,255,0.12)] text-center">
                 <a
                   href="https://app.lesion.io/search"
                   target="_blank"
                   rel="noopener noreferrer"
-                  class="text-sm text-orange-500 hover:text-orange-400 flex items-center justify-center gap-2"
+                  class="text-sm text-[#dc5f00] hover:text-[#dc5f00] flex items-center justify-center gap-2"
                 >
                   View all results
                   <svg
@@ -849,7 +966,7 @@
     </section>
 
     <!-- Stats -->
-    <section class="py-16 px-6 bg-slate-900/20 relative z-10">
+    <section class="py-16 px-6 bg-[rgba(255,255,255,0.02)] relative z-10">
       <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
         <div class="text-center">
           <div class="text-3xl md:text-4xl gradient-text mb-2 font-bold">
@@ -883,7 +1000,7 @@
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
           <div
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-4"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-4"
           >
             <span class="text-sm font-medium">Exploit Discovery Engine</span>
           </div>
@@ -897,9 +1014,9 @@
 
         <div class="grid md:grid-cols-3 gap-6">
           <div
-            class="bg-slate-900/50 border-2 border-orange-500/20 p-6 rounded-lg hover:border-orange-500/40 transition-all group"
+            class="bg-[rgba(255,255,255,0.05)] border-2 border-[rgba(255,255,255,0.12)] p-6 rounded-lg hover:border-[rgba(255,255,255,0.24)] transition-all group"
           >
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-4">Search</span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-4">Search</span>
             <h3 class="text-xl mb-3 font-semibold">CVE Deep Search</h3>
             <p class="text-slate-400">
               Query by keyword, vendor, product, version, CVE, exploit type, or attack vector.
@@ -907,9 +1024,9 @@
           </div>
 
           <div
-            class="bg-slate-900/50 border-2 border-orange-500/20 p-6 rounded-lg hover:border-orange-500/40 transition-all group"
+            class="bg-[rgba(255,255,255,0.05)] border-2 border-[rgba(255,255,255,0.12)] p-6 rounded-lg hover:border-[rgba(255,255,255,0.24)] transition-all group"
           >
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-4">Map</span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-4">Map</span>
             <h3 class="text-xl mb-3 font-semibold">Exploit Mapping</h3>
             <p class="text-slate-400">
               Automatically links vulnerabilities to public exploits, GitHub PoCs, Metasploit modules, and research writeups.
@@ -917,9 +1034,9 @@
           </div>
 
           <div
-            class="bg-slate-900/50 border-2 border-orange-500/20 p-6 rounded-lg hover:border-orange-500/40 transition-all group"
+            class="bg-[rgba(255,255,255,0.05)] border-2 border-[rgba(255,255,255,0.12)] p-6 rounded-lg hover:border-[rgba(255,255,255,0.24)] transition-all group"
           >
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-4">Score</span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-4">Score</span>
             <h3 class="text-xl mb-3 font-semibold">PoC Leaderboards</h3>
             <p class="text-slate-400">
               Community-scored proof-of-concepts ranked by reliability, execution success, and operational impact.
@@ -927,9 +1044,9 @@
           </div>
 
           <div
-            class="bg-slate-900/50 border-2 border-orange-500/20 p-6 rounded-lg hover:border-orange-500/40 transition-all group"
+            class="bg-[rgba(255,255,255,0.05)] border-2 border-[rgba(255,255,255,0.12)] p-6 rounded-lg hover:border-[rgba(255,255,255,0.24)] transition-all group"
           >
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-4">Enhance</span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-4">Enhance</span>
             <h3 class="text-xl mb-3 font-semibold">Enhanced Payload Insights</h3>
             <p class="text-slate-400">
               Payloads analyzed, normalized, and enhanced for safer lab testing and clarity.            
@@ -937,9 +1054,9 @@
           </div>
 
           <div
-            class="bg-slate-900/50 border-2 border-orange-500/20 p-6 rounded-lg hover:border-orange-500/40 transition-all group"
+            class="bg-[rgba(255,255,255,0.05)] border-2 border-[rgba(255,255,255,0.12)] p-6 rounded-lg hover:border-[rgba(255,255,255,0.24)] transition-all group"
           >
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-4">Patch</span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-4">Patch</span>
             <h3 class="text-xl mb-3 font-semibold">Patch & Mitigation Mapping</h3>
             <p class="text-slate-400">
               Instantly view vendor advisories, patches, mitigations, and remediation references.
@@ -947,9 +1064,9 @@
           </div>
 
           <div
-            class="bg-slate-900/50 border-2 border-orange-500/20 p-6 rounded-lg hover:border-orange-500/40 transition-all group"
+            class="bg-[rgba(255,255,255,0.05)] border-2 border-[rgba(255,255,255,0.12)] p-6 rounded-lg hover:border-[rgba(255,255,255,0.24)] transition-all group"
           >
-            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-4">Trending</span>
+            <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-4">Trending</span>
             <h3 class="text-xl mb-3 font-semibold">Trending Vulnerabilities</h3>
             <p class="text-slate-400">
               See trending vulnerabilites and their corresponding exploits. 
@@ -960,11 +1077,11 @@
     </section>
 
     <!-- Pricing -->
-    <section id="pricing" class="py-24 px-6 relative z-10 bg-slate-900/20">
+    <section id="pricing" class="py-24 px-6 relative z-10 bg-[rgba(255,255,255,0.02)]">
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-16">
           <div
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 text-orange-500 border border-orange-500/30 mb-4"
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[rgba(255,255,255,0.06)] text-[#dc5f00] border border-[rgba(255,255,255,0.12)] mb-4"
           >
             <span class="text-sm font-medium">Lesion Search</span>
           </div>
@@ -978,7 +1095,7 @@
 
         <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           <div
-            class="p-8 bg-slate-900/50 border-2 border-orange-500/20 rounded-lg"
+            class="p-8 bg-[rgba(255,255,255,0.05)] border-2 border-[rgba(255,255,255,0.12)] rounded-lg"
           >
             <h3 class="text-2xl mb-2 font-semibold">Researcher</h3>
             <div class="mb-6">
@@ -992,7 +1109,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1009,7 +1126,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1028,7 +1145,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1045,7 +1162,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1062,7 +1179,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1075,17 +1192,17 @@
             </ul>
             <button
               onclick="window.open('https://app.lesion.io/signup')"
-              class="w-full px-6 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-all"
+              class="w-full px-6 py-3 rounded-lg bg-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.14)] text-white font-medium transition-all"
             >
               Get Started
             </button>
           </div>
 
           <div
-            class="p-8 bg-gradient-to-b from-orange-500/10 to-slate-900/50 border-2 border-orange-500/50 rounded-lg shadow-2xl shadow-orange-500/20 scale-105"
+            class="p-8 bg-[rgba(255,255,255,0.07)] border-2 border-[#dc5f00]/60 rounded-lg scale-105"
           >
             <div
-              class="inline-block px-3 py-1 rounded-full bg-orange-600 text-white text-xs font-medium mb-4"
+              class="inline-block px-3 py-1 rounded-full bg-[#dc5f00] text-white text-xs font-medium mb-4"
             >
               Most Popular
             </div>
@@ -1102,7 +1219,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1121,7 +1238,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1140,7 +1257,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1157,7 +1274,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1174,7 +1291,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1191,7 +1308,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1208,7 +1325,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1222,14 +1339,14 @@
               </li>
             </ul>
             <button
-              class="w-full px-6 py-3 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium transition-all shadow-lg shadow-orange-600/20"
+              class="w-full px-6 py-3 rounded-lg bg-[#dc5f00] hover:bg-[#c25400] text-white font-medium transition-all"
             >
               Get Started
             </button>
           </div>
 
           <div
-            class="p-8 bg-slate-900/50 border-2 border-orange-500/20 rounded-lg"
+            class="p-8 bg-[rgba(255,255,255,0.05)] border-2 border-[rgba(255,255,255,0.12)] rounded-lg"
           >
             <h3 class="text-2xl mb-2 font-semibold">Team</h3>
             <div class="mb-6">
@@ -1243,7 +1360,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1262,7 +1379,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1279,7 +1396,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1296,7 +1413,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1315,7 +1432,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1332,7 +1449,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1351,7 +1468,7 @@
                   height="16"
                   viewBox="0 0 24 24"
                   fill="none"
-                  stroke="#ff6600"
+                  stroke="#9aa1ad"
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -1365,7 +1482,7 @@
               </li>
             </ul>
             <button
-              class="w-full px-6 py-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-100 font-medium transition-all"
+              class="w-full px-6 py-3 rounded-lg bg-[rgba(255,255,255,0.08)] hover:bg-[rgba(255,255,255,0.14)] text-white font-medium transition-all"
               onclick="window.open('https://app.lesion.io/contact_us')"
             >
               Contact Sales
@@ -1377,7 +1494,7 @@
 
     <!-- CTA -->
     <section
-      class="py-24 px-6 bg-gradient-to-r from-orange-500/10 via-orange-600/5 to-orange-500/10 border-y-2 border-orange-500/20 relative z-10"
+      class="py-24 px-6 bg-[rgba(255,255,255,0.03)] border-y border-[rgba(255,255,255,0.1)] relative z-10"
     >
       <div class="max-w-4xl mx-auto text-center">
         <h2 class="text-4xl md:text-5xl mb-6 font-bold">
@@ -1389,12 +1506,12 @@
         <div class="flex flex-col sm:flex-row gap-4 justify-center">
           <button
             onclick="window.open('https://app.lesion.io/signup')"
-            class="px-8 py-4 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium border border-orange-500/50 transition-all shadow-lg shadow-orange-600/20"
+            class="px-8 py-4 rounded-lg bg-[#dc5f00] hover:bg-[#c25400] text-white font-medium transition-all"
           >
             Join for Free
           </button>
           <button
-            class="px-8 py-4 rounded-lg border-2 border-orange-500/30 text-orange-500 hover:bg-orange-500/10 font-medium transition-all"
+            class="px-8 py-4 rounded-lg border-2 border-[rgba(255,255,255,0.12)] text-[#dc5f00] hover:bg-[rgba(255,255,255,0.06)] font-medium transition-all"
             onclick="window.open('https://app.lesion.io/contact_us')"
           >
             Contact Us
@@ -1404,7 +1521,7 @@
     </section>
 
     <!-- Footer -->
-    <footer class="py-12 px-6 border-t-2 border-orange-500/20 relative z-10">
+    <footer class="py-12 px-6 border-t-2 border-[rgba(255,255,255,0.12)] relative z-10">
       <div class="max-w-7xl mx-auto">
         <div class="grid md:grid-cols-4 gap-8 mb-8">
           <div>
@@ -1421,17 +1538,17 @@
             <h4 class="mb-4 font-semibold">Product</h4>
             <ul class="space-y-2 text-sm text-slate-400">
               <li>
-                <a href="#" class="hover:text-orange-500 transition-colors"
+                <a href="#" class="hover:text-[#dc5f00] transition-colors"
                   >Features</a
                 >
               </li>
               <li>
-                <a href="#pricing" class="hover:text-orange-500 transition-colors"
+                <a href="#pricing" class="hover:text-[#dc5f00] transition-colors"
                   >Pricing</a
                 >
               </li>
               <li>
-                <a href="#" class="hover:text-orange-500 transition-colors"
+                <a href="#" class="hover:text-[#dc5f00] transition-colors"
                   >Documentation</a
                 >
               </li>
@@ -1441,12 +1558,12 @@
             <h4 class="mb-4 font-semibold">Company</h4>
             <ul class="space-y-2 text-sm text-slate-400">
               <li>
-                <a href="#" class="hover:text-orange-500 transition-colors"
+                <a href="#" class="hover:text-[#dc5f00] transition-colors"
                   >Leaderboard</a
                 >
               </li>
               <li>
-                <a href="https://blog.lesion.io" class="hover:text-orange-500 transition-colors"
+                <a href="https://blog.lesion.io" class="hover:text-[#dc5f00] transition-colors"
                   >Blog</a
                 >
               </li>
@@ -1456,22 +1573,22 @@
             <h4 class="mb-4 font-semibold">Legal</h4>
             <ul class="space-y-2 text-sm text-slate-400">
               <li>
-                <a href="#" class="hover:text-orange-500 transition-colors"
+                <a href="#" class="hover:text-[#dc5f00] transition-colors"
                   >Privacy</a
                 >
               </li>
               <li>
-                <a href="#" class="hover:text-orange-500 transition-colors"
+                <a href="#" class="hover:text-[#dc5f00] transition-colors"
                   >Terms</a
                 >
               </li>
               <li>
-                <a href="#" class="hover:text-orange-500 transition-colors"
+                <a href="#" class="hover:text-[#dc5f00] transition-colors"
                   >Security</a
                 >
               </li>
               <li>
-                <a href="#" class="hover:text-orange-500 transition-colors"
+                <a href="#" class="hover:text-[#dc5f00] transition-colors"
                   >Compliance</a
                 >
               </li>
@@ -1479,7 +1596,7 @@
           </div>
         </div>
         <div
-          class="pt-8 border-t border-orange-500/20 text-center text-sm text-slate-400"
+          class="pt-8 border-t border-[rgba(255,255,255,0.12)] text-center text-sm text-slate-400"
         >
           <p>
             &copy; 2026 Lesion.io All rights reserved. For authorized security
@@ -1489,66 +1606,5 @@
       </div>
     </footer>
 
-    <!-- Canvas animation -->
-    <script>
-      const canvas = document.getElementById("canvas");
-      const ctx = canvas.getContext("2d");
-
-      function setCanvasSize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      setCanvasSize();
-      window.addEventListener("resize", setCanvasSize);
-
-      class Particle {
-        constructor() {
-          this.x = Math.random() * canvas.width;
-          this.y = Math.random() * canvas.height - canvas.height;
-          this.speed = 1 + Math.random() * 2;
-          this.radius = 0.5 + Math.random() * 1.5;
-          this.opacity = 0.2 + Math.random() * 0.4;
-        }
-
-        update() {
-          this.y += this.speed;
-          if (this.y > canvas.height) {
-            this.y = -10;
-            this.x = Math.random() * canvas.width;
-            this.speed = 1 + Math.random() * 2;
-          }
-        }
-
-        draw() {
-          ctx.beginPath();
-          ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 102, 0, ${this.opacity})`;
-          ctx.fill();
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = `rgba(255, 102, 0, ${this.opacity * 0.5})`;
-        }
-      }
-
-      const particles = [];
-      const particleCount = 40;
-
-      for (let i = 0; i < particleCount; i++) {
-        particles.push(new Particle());
-      }
-
-      function animate() {
-        ctx.fillStyle = "rgba(10, 14, 26, 0.15)";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        particles.forEach((particle) => {
-          particle.update();
-          particle.draw();
-        });
-
-        requestAnimationFrame(animate);
-      }
-
-      animate();
-    </script>
   </body>
 </html>
