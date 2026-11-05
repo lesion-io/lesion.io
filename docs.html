@@ -1,0 +1,623 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API reference · Lesion.io</title>
+  <meta name="description" content="Lesion.io API reference: search CVEs, exploit references and PoCs over HTTP." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" />
+  <style>
+    :root {
+      --bg: #000;
+      --panel: rgba(255, 255, 255, 0.03);
+      --line: rgba(255, 255, 255, 0.12);
+      --hover: rgba(255, 255, 255, 0.06);
+      --text: #e5e7eb;
+      --muted: #9aa1ad;
+      --dim: #6b7280;
+      --accent: #dc5f00;
+      --accent-hover: #c25400;
+      --accent-soft: rgba(220, 95, 0, 0.15);
+      --green: #4ade80;
+      --mono: "JetBrains Mono", "Fira Code", "SF Mono", Menlo, Consolas, monospace;
+      --header: 64px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header) + 16px); }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+      background-size: 26px 26px;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+    code, pre { font-family: var(--mono); }
+    p code, li code, td code {
+      font-size: 0.86em;
+      background: var(--hover);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 1px 5px;
+      color: #f3f4f6;
+    }
+
+    /* Header */
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0; height: var(--header); z-index: 50;
+      display: flex; align-items: center; gap: 16px; padding: 0 20px;
+      background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar .logo { display: flex; align-items: center; gap: 12px; color: var(--text); }
+    .topbar .logo img { height: 28px; width: auto; display: block; }
+    .topbar .logo span { font-size: 13px; color: var(--muted); padding-left: 12px; border-left: 1px solid var(--line); }
+    .topbar .spacer { flex: 1; }
+    .topbar .links { display: flex; gap: 4px; align-items: center; }
+    .topbar .links a { color: #cbd5e1; font-weight: 500; font-size: 14px; padding: 8px 14px; border-radius: 8px; }
+    .topbar .links a:hover { background: var(--hover); color: var(--accent); text-decoration: none; }
+    .topbar .links a.cta { background: var(--accent); color: #fff; }
+    .topbar .links a.cta:hover { background: var(--accent-hover); color: #fff; }
+    .menu-btn { display: none; background: none; border: 1px solid var(--line); color: var(--text); border-radius: 8px; padding: 6px 10px; font: inherit; font-size: 13px; cursor: pointer; }
+
+    /* Layout */
+    .layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); padding-top: var(--header); }
+    .sidebar {
+      position: sticky; top: var(--header); height: calc(100vh - var(--header)); overflow-y: auto;
+      border-right: 1px solid var(--line); padding: 20px 0 40px; background: rgba(0, 0, 0, 0.6);
+    }
+    .sidebar .group { font-size: 12px; color: var(--dim); padding: 18px 20px 6px; letter-spacing: 0.02em; }
+    .sidebar a {
+      display: flex; align-items: center; gap: 8px; padding: 6px 20px; color: var(--muted);
+      font-size: 14px; border-left: 2px solid transparent;
+    }
+    .sidebar a:hover { color: var(--text); background: var(--hover); text-decoration: none; }
+    .sidebar a.active { color: var(--text); border-left-color: var(--accent); background: var(--hover); }
+    .sidebar a.sub { padding-left: 36px; font-size: 13px; }
+    .verb {
+      font-family: var(--mono); font-size: 10.5px; font-weight: 500; text-transform: uppercase;
+      padding: 1px 6px; border-radius: 4px; line-height: 1.6;
+    }
+    .verb.post { background: rgba(74, 222, 128, 0.14); color: var(--green); border: 1px solid rgba(74, 222, 128, 0.3); }
+
+    /* Sections: prose on the left, code on the right, like ReDoc */
+    .section { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 44%); border-bottom: 1px solid var(--line); }
+    .prose { padding: 40px 40px 48px; max-width: 760px; }
+    .code { padding: 40px 28px 48px; background: var(--panel); border-left: 1px solid var(--line); }
+    .code-sticky { position: sticky; top: calc(var(--header) + 24px); }
+    h1, h2, h3 { color: #fff; line-height: 1.25; margin: 0 0 12px; }
+    h1 { font-size: 30px; font-weight: 700; }
+    h2 { font-size: 22px; font-weight: 600; }
+    h3 { font-size: 15px; font-weight: 600; margin-top: 28px; }
+    .prose p { color: #cbd5e1; margin: 0 0 14px; }
+    .prose ul { color: #cbd5e1; padding-left: 20px; margin: 0 0 14px; }
+    .prose li { margin-bottom: 6px; }
+    .lede { font-size: 17px; color: var(--muted) !important; }
+    .endpoint {
+      display: inline-flex; align-items: center; gap: 10px; margin: 4px 0 18px;
+      font-family: var(--mono); font-size: 13px; padding: 8px 12px; border-radius: 8px;
+      background: var(--panel); border: 1px solid var(--line);
+    }
+    .note {
+      border: 1px solid rgba(220, 95, 0, 0.35); background: var(--accent-soft);
+      border-radius: 8px; padding: 12px 14px; font-size: 14px; color: #f3d9c4; margin: 0 0 16px;
+    }
+
+    /* Parameter tables */
+    .params { width: 100%; border-collapse: collapse; margin: 8px 0 18px; font-size: 14px; }
+    .params td { padding: 12px 0; border-top: 1px solid var(--line); vertical-align: top; }
+    .params td:first-child { width: 34%; padding-right: 16px; }
+    .pname { font-family: var(--mono); font-size: 13px; color: #fff; word-break: break-word; }
+    .ptype { display: block; font-family: var(--mono); font-size: 12px; color: var(--dim); margin-top: 2px; }
+    .req { display: block; font-size: 11px; color: #f87171; margin-top: 2px; }
+    .params .desc { color: #cbd5e1; }
+    .params .desc .meta { display: block; font-size: 12.5px; color: var(--dim); margin-top: 4px; }
+    .status { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+    .s2 { color: var(--green); } .s4 { color: #fbbf24; } .s5 { color: #f87171; }
+    .sev { font-size: 12px; padding: 2px 8px; border-radius: 4px; border: 1px solid; }
+    .sev.critical { background: rgba(239, 68, 68, 0.2); color: #f87171; border-color: rgba(239, 68, 68, 0.3); }
+    .sev.high { background: rgba(220, 95, 0, 0.2); color: var(--accent); border-color: rgba(220, 95, 0, 0.3); }
+    .sev.medium { background: rgba(234, 179, 8, 0.2); color: #facc15; border-color: rgba(234, 179, 8, 0.3); }
+    .sev.low { background: rgba(59, 130, 246, 0.18); color: #93c5fd; border-color: rgba(59, 130, 246, 0.3); }
+    .sev.none { background: var(--hover); color: var(--muted); border-color: var(--line); }
+
+    /* Code blocks */
+    .block { border: 1px solid var(--line); border-radius: 8px; background: #050505; margin: 0 0 20px; overflow: hidden; }
+    .block-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 0 8px 0 12px; border-bottom: 1px solid var(--line); background: rgba(255, 255, 255, 0.04);
+      min-height: 38px;
+    }
+    .block-title { font-size: 12px; color: var(--muted); }
+    .tabs { display: flex; gap: 2px; }
+    .tab {
+      background: none; border: 0; color: var(--muted); font: inherit; font-size: 12px;
+      padding: 10px 10px; cursor: pointer; border-bottom: 2px solid transparent;
+    }
+    .tab[aria-selected="true"] { color: #fff; border-bottom-color: var(--accent); }
+    .copy {
+      background: none; border: 1px solid var(--line); color: var(--muted); font: inherit; font-size: 11.5px;
+      padding: 3px 9px; border-radius: 6px; cursor: pointer; margin-left: auto;
+    }
+    .copy:hover { color: #fff; background: var(--hover); }
+    pre { margin: 0; padding: 14px 16px; overflow-x: auto; font-size: 12.5px; line-height: 1.6; color: #d1d5db; }
+    pre[hidden] { display: none; }
+    .k { color: #ff8533; } .s { color: #a5d6a7; } .n { color: #93c5fd; } .c { color: var(--dim); } .p { color: var(--green); }
+
+    /* Mobile */
+    @media (max-width: 1100px) {
+      .section { grid-template-columns: minmax(0, 1fr); }
+      .code { border-left: 0; border-top: 1px solid var(--line); padding: 24px 20px 32px; }
+      .code-sticky { position: static; }
+      .prose { padding: 32px 24px; max-width: none; }
+    }
+    @media (max-width: 820px) {
+      .layout { grid-template-columns: minmax(0, 1fr); }
+      .sidebar {
+        display: none; position: fixed; inset: var(--header) 0 0 0; height: auto; z-index: 40;
+        background: rgba(0, 0, 0, 0.96); border-right: 0;
+      }
+      .sidebar.open { display: block; }
+      .menu-btn { display: inline-block; }
+      .topbar .links a:not(.cta) { display: none; }
+      .topbar .logo span { display: none; }
+      .params td:first-child { width: 40%; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="logo" href="https://lesion.io" aria-label="Lesion.io home">
+    <img src="./src/images/Asset-5.png" alt="Lesion.io" />
+    <span>API reference</span>
+  </a>
+  <div class="spacer"></div>
+  <nav class="links" aria-label="Site">
+    <a href="./index.html">Home</a>
+    <a href="./index.html#pricing">Pricing</a>
+    <a href="https://community.lesion.io/">Community</a>
+    <a class="cta" href="https://app.lesion.io/signup">Get an API key</a>
+  </nav>
+  <button class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="sidebar">Contents</button>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar" aria-label="Contents">
+    <div class="group">Getting started</div>
+    <a href="#introduction">Introduction</a>
+    <a href="#authentication">Authentication</a>
+    <a href="#errors">Errors and limits</a>
+
+    <div class="group">Search</div>
+    <a href="#search"><span class="verb post">post</span> Search CVEs</a>
+    <a class="sub" href="#keyword-search">Keyword search</a>
+    <a class="sub" href="#version-search">Version-aware search</a>
+    <a class="sub" href="#cve-lookup">CVE ID lookup</a>
+    <a class="sub" href="#filters">Filters</a>
+    <a class="sub" href="#pagination">Pagination and sorting</a>
+
+    <div class="group">Reference</div>
+    <a href="#response">Response object</a>
+  </aside>
+
+  <main>
+
+    <!-- Introduction -->
+    <section class="section" id="introduction">
+      <div class="prose">
+        <h1>Lesion.io API</h1>
+        <p class="lede">Utilize the API to feed your tooling and workflows, from recon scripts and scanners to reporting pipelines, with a single authenticated JSON request.</p>
+        <p>The API is a single JSON-over-HTTPS endpoint. Send a <code>POST</code> with a JSON body and you get CVE records back, newest first. The same search powers <a href="https://app.lesion.io/search">Lesion Search</a>, so anything you can find in the app you can find here.</p>
+        <p>Every request needs an API key. See <a href="#authentication">Authentication</a>.</p>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">Base URL</span><button class="copy" data-copy="https://api.lesion.io">Copy</button></div>
+          <pre>https://api.lesion.io</pre>
+        </div>
+        <div class="block">
+          <div class="block-head"><span class="block-title">Your first request</span><button class="copy">Copy</button></div>
+<pre><span class="p">curl</span> https://api.lesion.io/search \
+  -H <span class="s">"X-API-Key: $LESION_API_KEY"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{"query": "apache struts"}'</span></pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Authentication -->
+    <section class="section" id="authentication">
+      <div class="prose">
+        <h2>Authentication</h2>
+        <p>Pass your API key in the <code>X-API-Key</code> header on every request. You can create and revoke keys from your account at <a href="https://app.lesion.io">app.lesion.io</a>.</p>
+        <p>Requests without a valid key are rejected with <code>401</code> before any search runs.</p>
+        <div class="note">Treat your key like a password. Call the API from a server, script, or CLI, not from code that runs in someone else's browser.</div>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">Header</span><button class="copy">Copy</button></div>
+<pre>X-API-Key: <span class="s">lsn_your_key_here</span></pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Errors -->
+    <section class="section" id="errors">
+      <div class="prose">
+        <h2>Errors and limits</h2>
+        <p>The API uses standard HTTP status codes. Error bodies are JSON with a <code>detail</code> field.</p>
+        <table class="params">
+          <tr><td><span class="status s2">200</span></td><td class="desc">Success.</td></tr>
+          <tr><td><span class="status s4">401</span></td><td class="desc">Missing or invalid API key.</td></tr>
+          <tr><td><span class="status s4">404</span></td><td class="desc">The CVE ID you looked up isn't in the index. Only returned by <a href="#cve-lookup">CVE ID lookups</a>; searches with no matches return <code>200</code> with an empty <code>results</code> list.</td></tr>
+          <tr><td><span class="status s4">422</span></td><td class="desc">The request body failed validation. <code>detail</code> lists each problem with its location and a message.</td></tr>
+          <tr><td><span class="status s4">429</span></td><td class="desc">You've hit your rate limit or used your monthly search allowance. Limits depend on your plan; see <a href="./index.html#pricing">pricing</a>.</td></tr>
+          <tr><td><span class="status s5">502 / 503</span></td><td class="desc">The search backend had a problem or is briefly unavailable. Safe to retry with backoff.</td></tr>
+        </table>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">422 response</span></div>
+<pre>{
+  <span class="k">"detail"</span>: [
+    {
+      <span class="k">"loc"</span>: [<span class="s">"body"</span>, <span class="s">"cve_id"</span>],
+      <span class="k">"msg"</span>: <span class="s">"Value error, Invalid CVE ID format. Expected: CVE-YYYY-NNNNN"</span>,
+      <span class="k">"type"</span>: <span class="s">"value_error"</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Search -->
+    <section class="section" id="search">
+      <div class="prose">
+        <h2>Search CVEs</h2>
+        <div class="endpoint"><span class="verb post">post</span> /search</div>
+        <p>One endpoint covers three kinds of search, picked by which fields you send:</p>
+        <ul>
+          <li><a href="#keyword-search">Keyword search</a>: send <code>query</code>.</li>
+          <li><a href="#version-search">Version-aware search</a>: send <code>query</code> and <code>version</code>.</li>
+          <li><a href="#cve-lookup">CVE ID lookup</a>: send <code>cve_id</code>.</li>
+        </ul>
+        <p>Every field is optional on its own, but each request needs either <code>query</code> or <code>cve_id</code>. Empty strings, <code>null</code>, and empty lists are treated as "not set".</p>
+
+        <h3>Request body</h3>
+        <table class="params">
+          <tr><td><span class="pname">query</span><span class="ptype">string, ≤ 200</span><span class="req">required unless cve_id is set</span></td>
+              <td class="desc">Keywords, or a vendor and product such as <code>apache http_server</code>.<span class="meta">Letters, numbers, spaces, dots, hyphens and underscores only.</span></td></tr>
+          <tr><td><span class="pname">version</span><span class="ptype">string, ≤ 50</span></td>
+              <td class="desc">A specific product version. Switches on <a href="#version-search">version-aware search</a>.<span class="meta">Letters, numbers, dots, hyphens and underscores only.</span></td></tr>
+          <tr><td><span class="pname">cve_id</span><span class="ptype">string, ≤ 20</span></td>
+              <td class="desc">Look up one CVE directly, such as <code>CVE-2021-44228</code>. Case-insensitive. When set, every other field is ignored.</td></tr>
+          <tr><td><span class="pname">severity</span><span class="ptype">array of strings</span></td>
+              <td class="desc">Any of <code>none</code>, <code>low</code>, <code>medium</code>, <code>high</code>, <code>critical</code>. A comma-separated string also works. See <a href="#filters">Filters</a>.</td></tr>
+          <tr><td><span class="pname">has_exploit_reference</span><span class="ptype">boolean</span></td>
+              <td class="desc">Set <code>true</code> to keep only CVEs with at least one exploit reference.</td></tr>
+          <tr><td><span class="pname">has_github_repos</span><span class="ptype">boolean</span></td>
+              <td class="desc">Set <code>true</code> to keep only CVEs with linked GitHub repositories, such as PoCs.</td></tr>
+          <tr><td><span class="pname">published_year</span><span class="ptype">array of integers, ≤ 20</span></td>
+              <td class="desc">Keep CVEs published in any of these years.<span class="meta">1990 to 2100.</span></td></tr>
+          <tr><td><span class="pname">cwe_ids</span><span class="ptype">array of strings</span></td>
+              <td class="desc">Keep CVEs tagged with any of these CWEs, such as <code>CWE-79</code>.</td></tr>
+          <tr><td><span class="pname">page</span><span class="ptype">integer, default 1</span></td>
+              <td class="desc">Page number, starting at 1. See <a href="#pagination">Pagination</a>.</td></tr>
+          <tr><td><span class="pname">page_size</span><span class="ptype">25 | 50 | 100, default 25</span></td>
+              <td class="desc">Results per page.</td></tr>
+        </table>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block" data-tabs>
+          <div class="block-head">
+            <div class="tabs" role="tablist">
+              <button class="tab" role="tab" aria-selected="true">curl</button>
+              <button class="tab" role="tab" aria-selected="false">Python</button>
+              <button class="tab" role="tab" aria-selected="false">Node.js</button>
+            </div>
+            <button class="copy">Copy</button>
+          </div>
+<pre role="tabpanel"><span class="p">curl</span> https://api.lesion.io/search \
+  -H <span class="s">"X-API-Key: $LESION_API_KEY"</span> \
+  -H <span class="s">"Content-Type: application/json"</span> \
+  -d <span class="s">'{
+    "query": "apache struts",
+    "severity": ["critical", "high"],
+    "has_exploit_reference": true,
+    "page_size": 50
+  }'</span></pre>
+<pre role="tabpanel" hidden><span class="k">import</span> os, requests
+
+resp = requests.post(
+    <span class="s">"https://api.lesion.io/search"</span>,
+    headers={<span class="s">"X-API-Key"</span>: os.environ[<span class="s">"LESION_API_KEY"</span>]},
+    json={
+        <span class="s">"query"</span>: <span class="s">"apache struts"</span>,
+        <span class="s">"severity"</span>: [<span class="s">"critical"</span>, <span class="s">"high"</span>],
+        <span class="s">"has_exploit_reference"</span>: <span class="k">True</span>,
+        <span class="s">"page_size"</span>: <span class="n">50</span>,
+    },
+    timeout=<span class="n">30</span>,
+)
+resp.raise_for_status()
+<span class="k">for</span> cve <span class="k">in</span> resp.json()[<span class="s">"results"</span>]:
+    print(cve[<span class="s">"cve_id"</span>])</pre>
+<pre role="tabpanel" hidden><span class="k">const</span> resp = <span class="k">await</span> fetch(<span class="s">"https://api.lesion.io/search"</span>, {
+  method: <span class="s">"POST"</span>,
+  headers: {
+    <span class="s">"X-API-Key"</span>: process.env.LESION_API_KEY,
+    <span class="s">"Content-Type"</span>: <span class="s">"application/json"</span>,
+  },
+  body: JSON.stringify({
+    query: <span class="s">"apache struts"</span>,
+    severity: [<span class="s">"critical"</span>, <span class="s">"high"</span>],
+    has_exploit_reference: <span class="k">true</span>,
+    page_size: <span class="n">50</span>,
+  }),
+});
+<span class="k">const</span> { results } = <span class="k">await</span> resp.json();</pre>
+        </div>
+        <div class="block">
+          <div class="block-head"><span class="block-title">200 response</span></div>
+<pre>{
+  <span class="k">"total"</span>: <span class="n">74</span>,
+  <span class="k">"page"</span>: <span class="n">1</span>,
+  <span class="k">"page_size"</span>: <span class="n">50</span>,
+  <span class="k">"pages"</span>: <span class="n">2</span>,
+  <span class="k">"results"</span>: [
+    {
+      <span class="k">"cve_id"</span>: <span class="s">"CVE-2024-53677"</span>,
+      <span class="k">"published"</span>: <span class="s">"2024-12-11T15:15:19"</span>,
+      <span class="k">"metrics"</span>: {
+        <span class="k">"max_cvss_score"</span>: <span class="n">9.5</span>,
+        <span class="k">"max_cvss_severity"</span>: <span class="s">"critical"</span>
+      },
+      <span class="k">"cwe_ids"</span>: [<span class="s">"CWE-434"</span>],
+      <span class="k">"has_exploit_reference"</span>: <span class="k">true</span>,
+      <span class="c">...</span>
+    }
+  ]
+}</pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Keyword search -->
+    <section class="section" id="keyword-search">
+      <div class="prose">
+        <h2>Keyword search</h2>
+        <p>Send just <code>query</code>. A CVE matches if either of these is true:</p>
+        <ul>
+          <li>Its description or nickname contains every word in your query.</li>
+          <li>It lists an affected product whose vendor and product name match your query.</li>
+        </ul>
+        <p>For product matching, the first word is read as the vendor and the rest as the product, so <code>apache http server</code> matches the CPE product <code>http_server</code> from vendor <code>apache</code>. Product names are matched as written in NVD, which usually means lowercase with underscores.</p>
+        <p>Only products marked as vulnerable count; CPEs listed as running alongside a vulnerable product don't.</p>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">Request</span><button class="copy">Copy</button></div>
+<pre>{
+  <span class="k">"query"</span>: <span class="s">"log4j remote code execution"</span>
+}</pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Version search -->
+    <section class="section" id="version-search">
+      <div class="prose">
+        <h2>Version-aware search</h2>
+        <p>Add <code>version</code> to find CVEs that affect that exact release. Here <code>query</code> must be the vendor followed by the product, such as <code>apache http_server</code> or <code>sudo_project sudo</code>.</p>
+        <p>A CVE matches when one of its vulnerable products has that exact version, or a version range that includes it. Versions are compared segment by segment, so <code>2.4.9</code> correctly sorts below <code>2.4.49</code>.</p>
+        <div class="note">Matching follows the version format NVD uses for that product, which isn't always as granular as the version you have. If a full version returns nothing, drop the last segment and search again, for example <code>8.0.2.1</code> becomes <code>8.0.2</code>.</div>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">Request</span><button class="copy">Copy</button></div>
+<pre>{
+  <span class="k">"query"</span>: <span class="s">"apache http_server"</span>,
+  <span class="k">"version"</span>: <span class="s">"2.4.49"</span>
+}</pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- CVE lookup -->
+    <section class="section" id="cve-lookup">
+      <div class="prose">
+        <h2>CVE ID lookup</h2>
+        <p>Send <code>cve_id</code> to fetch a single record. The ID is case-insensitive and must look like <code>CVE-YYYY-NNNN</code> with 4 to 10 trailing digits.</p>
+        <p>The response has the same shape as a search, with exactly one item in <code>results</code>. If the ID isn't in the index you get <code>404</code>.</p>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">Request</span><button class="copy">Copy</button></div>
+<pre>{
+  <span class="k">"cve_id"</span>: <span class="s">"CVE-2021-44228"</span>
+}</pre>
+        </div>
+        <div class="block">
+          <div class="block-head"><span class="block-title">404 response</span></div>
+<pre>{
+  <span class="k">"detail"</span>: <span class="s">"CVE-2099-0001 not found"</span>
+}</pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Filters -->
+    <section class="section" id="filters">
+      <div class="prose">
+        <h2>Filters</h2>
+        <p>Filters narrow a keyword or version search and can be combined freely. Within one filter, values are OR'd: <code>["critical", "high"]</code> means critical or high. Across filters, they're AND'd.</p>
+
+        <h3>Severity</h3>
+        <p>Severity is based on the highest CVSS score recorded for the CVE, across all CVSS versions.</p>
+        <table class="params">
+          <tr><td><span class="sev critical">critical</span></td><td class="desc">9.0 to 10.0</td></tr>
+          <tr><td><span class="sev high">high</span></td><td class="desc">7.0 to 8.9</td></tr>
+          <tr><td><span class="sev medium">medium</span></td><td class="desc">4.0 to 6.9</td></tr>
+          <tr><td><span class="sev low">low</span></td><td class="desc">0.1 to 3.9</td></tr>
+          <tr><td><span class="sev none">none</span></td><td class="desc">0.0</td></tr>
+        </table>
+
+        <h3>Exploit and PoC flags</h3>
+        <p><code>has_exploit_reference</code> and <code>has_github_repos</code> only filter when set to <code>true</code>. Sending <code>false</code> is the same as leaving them out; it doesn't return CVEs <em>without</em> exploits.</p>
+
+        <h3>Years and CWEs</h3>
+        <p><code>published_year</code> takes up to 20 years. <code>cwe_ids</code> takes CWE IDs in the form <code>CWE-&lt;number&gt;</code>; duplicates are ignored.</p>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">Request</span><button class="copy">Copy</button></div>
+<pre>{
+  <span class="k">"query"</span>: <span class="s">"wordpress plugin"</span>,
+  <span class="k">"severity"</span>: [<span class="s">"critical"</span>],
+  <span class="k">"has_github_repos"</span>: <span class="k">true</span>,
+  <span class="k">"published_year"</span>: [<span class="n">2024</span>, <span class="n">2025</span>],
+  <span class="k">"cwe_ids"</span>: [<span class="s">"CWE-89"</span>, <span class="s">"CWE-434"</span>]
+}</pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Pagination -->
+    <section class="section" id="pagination">
+      <div class="prose">
+        <h2>Pagination and sorting</h2>
+        <p>Results are sorted by publish date, newest first, then by CVSS score, highest first.</p>
+        <p>Use <code>page</code> and <code>page_size</code> to walk through results. The response tells you how many <code>pages</code> there are.</p>
+        <div class="note">You can page through the first 10,000 results of any search. Asking for a page past that returns <code>422</code>. Add filters to narrow the search instead of paging deeper.</div>
+        <p>For large result sets, <code>total</code> stops counting at 10,000, so treat 10,000 as "10,000 or more".</p>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">Deepest page per page size</span></div>
+<pre><span class="c">page_size  last page</span>
+       <span class="n">25</span>        <span class="n">400</span>
+       <span class="n">50</span>        <span class="n">200</span>
+      <span class="n">100</span>        <span class="n">100</span></pre>
+        </div>
+      </div></div>
+    </section>
+
+    <!-- Response object -->
+    <section class="section" id="response">
+      <div class="prose">
+        <h2>Response object</h2>
+        <h3>Envelope</h3>
+        <table class="params">
+          <tr><td><span class="pname">total</span><span class="ptype">integer</span></td><td class="desc">Matching CVEs, capped at 10,000.</td></tr>
+          <tr><td><span class="pname">page</span><span class="ptype">integer</span></td><td class="desc">The page you asked for.</td></tr>
+          <tr><td><span class="pname">page_size</span><span class="ptype">integer</span></td><td class="desc">Results per page.</td></tr>
+          <tr><td><span class="pname">pages</span><span class="ptype">integer</span></td><td class="desc">Total pages for this search.</td></tr>
+          <tr><td><span class="pname">results</span><span class="ptype">array</span></td><td class="desc">CVE records, described below.</td></tr>
+        </table>
+
+        <h3>CVE record</h3>
+        <table class="params">
+          <tr><td><span class="pname">cve_id</span><span class="ptype">string</span></td><td class="desc">The CVE identifier.</td></tr>
+          <tr><td><span class="pname">published</span><span class="ptype">datetime</span></td><td class="desc">When NVD published the CVE.</td></tr>
+          <tr><td><span class="pname">descriptions</span><span class="ptype">text</span></td><td class="desc">The CVE description.</td></tr>
+          <tr><td><span class="pname">nickname</span><span class="ptype">string</span></td><td class="desc">Common name, such as Log4Shell, when one exists.</td></tr>
+          <tr><td><span class="pname">vuln_status</span><span class="ptype">string</span></td><td class="desc">NVD analysis status, such as <code>analyzed</code> or <code>awaiting analysis</code>.</td></tr>
+          <tr><td><span class="pname">metrics</span><span class="ptype">object</span></td><td class="desc">CVSS data, including <code>max_cvss_score</code> and <code>max_cvss_severity</code>.</td></tr>
+          <tr><td><span class="pname">cwe_ids</span><span class="ptype">array of strings</span></td><td class="desc">Weakness types.</td></tr>
+          <tr><td><span class="pname">vuln_categories</span><span class="ptype">array of strings</span></td><td class="desc">Lesion's plain-language categories, derived from the CWEs.</td></tr>
+          <tr><td><span class="pname">has_exploit_reference</span><span class="ptype">boolean</span></td><td class="desc">Whether any reference is tagged as an exploit.</td></tr>
+          <tr><td><span class="pname">references</span><span class="ptype">array</span></td><td class="desc">Advisories, patches and exploit links, with tags.</td></tr>
+          <tr><td><span class="pname">cpe</span><span class="ptype">array</span></td><td class="desc">Affected products and version ranges.</td></tr>
+          <tr><td><span class="pname">github_repos</span><span class="ptype">array</span></td><td class="desc">Linked GitHub repositories, such as PoCs.</td></tr>
+        </table>
+      </div>
+      <div class="code"><div class="code-sticky">
+        <div class="block">
+          <div class="block-head"><span class="block-title">Need help?</span></div>
+<pre><span class="c"># Questions, bugs, or feature requests</span>
+https://community.lesion.io
+https://lesionio.userjot.com</pre>
+        </div>
+      </div></div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  // Tabs on multi-language code blocks
+  document.querySelectorAll("[data-tabs]").forEach(function (block) {
+    var tabs = block.querySelectorAll(".tab");
+    var panels = block.querySelectorAll("pre[role=tabpanel]");
+    tabs.forEach(function (tab, i) {
+      tab.addEventListener("click", function () {
+        tabs.forEach(function (t, j) {
+          t.setAttribute("aria-selected", i === j ? "true" : "false");
+          panels[j].hidden = i !== j;
+        });
+      });
+    });
+  });
+
+  // Copy buttons copy the visible code in their block
+  document.querySelectorAll(".copy").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var text = btn.dataset.copy;
+      if (!text) {
+        var pre = btn.closest(".block").querySelector("pre:not([hidden])");
+        text = pre ? pre.innerText : "";
+      }
+      navigator.clipboard.writeText(text).then(function () {
+        btn.textContent = "Copied";
+        setTimeout(function () { btn.textContent = "Copy"; }, 1400);
+      });
+    });
+  });
+
+  // Mobile contents toggle
+  var menuBtn = document.getElementById("menu-btn");
+  var sidebar = document.getElementById("sidebar");
+  function setMenu(open) {
+    sidebar.classList.toggle("open", open);
+    menuBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  }
+  menuBtn.addEventListener("click", function () { setMenu(!sidebar.classList.contains("open")); });
+  sidebar.addEventListener("click", function (e) { if (e.target.closest("a")) setMenu(false); });
+
+  // Highlight the section currently in view
+  var links = {};
+  sidebar.querySelectorAll("a[href^='#']").forEach(function (a) { links[a.getAttribute("href").slice(1)] = a; });
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      Object.values(links).forEach(function (a) { a.classList.remove("active"); });
+      var link = links[entry.target.id];
+      if (link) link.classList.add("active");
+    });
+  }, { rootMargin: "-80px 0px -70% 0px" });
+  document.querySelectorAll("main section[id]").forEach(function (s) { observer.observe(s); });
+})();
+</script>
+</body>
+</html>
