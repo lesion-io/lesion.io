@@ -306,7 +306,7 @@
         <h3>Request body</h3>
         <table class="params">
           <tr><td><span class="pname">query</span><span class="ptype">string, ≤ 200</span><span class="req">required unless cve_id is set</span></td>
-              <td class="desc">Keywords, or a vendor and product such as <code>apache http_server</code>.<span class="meta">Letters, numbers, spaces, dots, hyphens and underscores only.</span></td></tr>
+              <td class="desc">Keywords, or a vendor and product such as <code>apache struts</code>.<span class="meta">Letters, numbers, spaces, dots, hyphens and underscores only.</span></td></tr>
           <tr><td><span class="pname">version</span><span class="ptype">string, ≤ 50</span></td>
               <td class="desc">A specific product version. Switches on <a href="#version-search">version-aware search</a>.<span class="meta">Letters, numbers, dots, hyphens and underscores only.</span></td></tr>
           <tr><td><span class="pname">cve_id</span><span class="ptype">string, ≤ 20</span></td>
@@ -418,7 +418,7 @@ resp.raise_for_status()
         <div class="block">
           <div class="block-head"><span class="block-title">Request</span><button class="copy">Copy</button></div>
 <pre>{
-  <span class="k">"query"</span>: <span class="s">"log4j remote code execution"</span>
+  <span class="k">"query"</span>: <span class="s">"log4j"</span>
 }</pre>
         </div>
       </div></div>
@@ -492,7 +492,7 @@ resp.raise_for_status()
         <div class="block">
           <div class="block-head"><span class="block-title">Request</span><button class="copy">Copy</button></div>
 <pre>{
-  <span class="k">"query"</span>: <span class="s">"wordpress plugin"</span>,
+  <span class="k">"query"</span>: <span class="s">"wordpress"</span>,
   <span class="k">"severity"</span>: [<span class="s">"critical"</span>],
   <span class="k">"has_github_repos"</span>: <span class="k">true</span>,
   <span class="k">"published_year"</span>: [<span class="n">2024</span>, <span class="n">2025</span>],
