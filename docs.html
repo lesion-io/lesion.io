@@ -428,7 +428,7 @@ resp.raise_for_status()
     <section class="section" id="version-search">
       <div class="prose">
         <h2>Version-aware search</h2>
-        <p>Add <code>version</code> to find CVEs that affect that exact release. Here <code>query</code> must be the vendor followed by the product, such as <code>apache http_server</code> or <code>sudo_project sudo</code>.</p>
+        <p>Add <code>version</code> to find CVEs that affect that exact release.</p>
         <p>A CVE matches when one of its vulnerable products has that exact version, or a version range that includes it. Versions are compared segment by segment, so <code>2.4.9</code> correctly sorts below <code>2.4.49</code>.</p>
         <div class="note">Matching follows the version format NVD uses for that product, which isn't always as granular as the version you have. If a full version returns nothing, drop the last segment and search again, for example <code>8.0.2.1</code> becomes <code>8.0.2</code>.</div>
       </div>
