@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Main site -->
+  <url>
+    <loc>https://lesion.io/</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+
+  <!-- API documentation -->
+  <url>
+    <loc>https://lesion.io/docs.html</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+
+  <!-- Legal -->
+  <url>
+    <loc>https://lesion.io/privacy.pdf</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+  <url>
+    <loc>https://lesion.io/tos.pdf</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+
+  <!--
+    Subdomain URLs below are only accepted by Google if app.lesion.io and
+    community.lesion.io are verified in the same Search Console account as
+    lesion.io. Otherwise move them into each subdomain's own sitemap.
+  -->
+
+  <!-- Lesion Search app -->
+  <url>
+    <loc>https://app.lesion.io/search</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+
+  <!-- Signup and login: confirm these paths match your Bubble pages -->
+  <url>
+    <loc>https://app.lesion.io/signup</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+  <url>
+    <loc>https://app.lesion.io/login</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+
+  <!-- Community / blog -->
+  <url>
+    <loc>https://community.lesion.io/</loc>
+    <lastmod>2026-11-17</lastmod>
+  </url>
+
+</urlset>
